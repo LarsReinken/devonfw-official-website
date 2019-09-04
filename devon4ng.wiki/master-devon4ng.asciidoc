@@ -1,0 +1,74 @@
+[[master-devon4ng.asciidoc]]
+= devon4ng
+
+include::architecture.asciidoc[leveloffset=1]
+
+include::meta-architecture.asciidoc[leveloffset=1]
+
+[[master-devon4ng.asciidoc_layers]]
+== Layers
+
+include::components-layer.asciidoc[leveloffset=2]
+
+include::services-layer.asciidoc[leveloffset=2]
+
+[[master-devon4ng.asciidoc_guides]]
+== Guides
+
+include::guide-package-managers.asciidoc[leveloffset=2]
+
+include::guide-npm-yarn-workflow.asciidoc[leveloffset=2]
+
+[[master-devon4ng.asciidoc_angular]]
+== Angular
+
+include::guide-accessibility.asciidoc[leveloffset=2]
+
+include::guide-angular-elements.asciidoc[leveloffset=2]
+
+include::guide-angular-lazy-loading.asciidoc[leveloffset=2]
+
+include::guide-angular-library.asciidoc[leveloffset=2]
+
+include::guide-angular-theming.asciidoc[leveloffset=2]
+
+include::guide-angular-pwa.asciidoc[leveloffset=2]
+
+include::guide-app-initializer.asciidoc[leveloffset=2]
+
+include::guide-component-decomposition.asciidoc[leveloffset=2]
+
+include::guide-consuming-rest-services.asciidoc[leveloffset=2]
+
+include::guide-error-handler.asciidoc[leveloffset=2]
+
+
+[[master-devon4ng.asciidoc_ionic]]
+== Ionic
+
+include::guide-ionic-getting-started.asciidoc[leveloffset=2]
+
+include::guide-ionic-from-code-to-android.asciidoc[leveloffset=2]
+
+
+[[master-devon4ng.asciidoc_layouts]]
+== Layouts
+
+include::guide-layout-with-angular-material.asciidoc[leveloffset=2]
+
+[[master-devon4ng.asciidoc_ngrx]]
+== NgRx
+
+include::guide-ngrx-getting-started.asciidoc[leveloffset=2]
+
+include::guide-ngrx-simple-store.asciidoc[leveloffset=2]
+
+include::guide-ngrx-effects.asciidoc[leveloffset=2]
+
+
+[[master-devon4ng.asciidoc_cookbook]]
+== Cookbook
+
+include::cookbook-abstract-class-store.asciidoc[leveloffset=2]
+
+include::guide-add-electron.asciidoc[leveloffset=2]
