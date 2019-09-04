@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
-<title>devonfw guide devon4ng</title>
+<title>devon4ng</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -431,18 +431,50 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body id="master.asciidoc" class="book">
+<body class="article toc2 toc-right">
 <div id="header">
-<h1>devonfw guide devon4ng</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel0">
+<li><a href="#home.asciidoc">devon4ng</a>
+<ul class="sectlevel1">
+<li><a href="#home.asciidoc_motivation">Motivation</a></li>
+<li><a href="#home.asciidoc_gotchas">Gotchas</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 <div id="content">
-<div id="preamble">
+<!-- toc disabled -->
+<h1 id="home.asciidoc" class="sect0">devon4ng</h1>
+<div class="paragraph">
+<p>This guide describes an application architecture for web client development with <a href="https://angular.io/">Angular</a>.</p>
+</div>
+<div class="sect1">
+<h2 id="home.asciidoc_motivation">Motivation</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Unresolved directive in master.asciidoc - include::../devon4ng.wiki/master-devon4ng.asciidoc[leveloffset=0]</p>
+<p>The main challenge we encounter in our projects is to bring junior developers into client development.
+There are a lot of different frameworks and architectures in the market.
+The idea is to define an architecture which is a compromise between, on the one hand, leveraging the best practices and latest trends like reactive style development,
+on the other hand, providing a short onboarding time while still using an architecture that helps us scale and be productive at the same time.
+Also, the architecture must be compatible with the market.
+Guides, practices and naming found in the web should still be valid (e.g. a stackoverflow article for a given problem)</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="home.asciidoc_gotchas">Gotchas</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>What we decided to go for is an architecture that leverages the benefits of reactive frontend architecture
+while remaining free of a dependency to a concrete framework like <a href="https://github.com/ngrx">ngrx</a> or <a href="https://github.com/angular-redux/store">angular-redux</a>.
+The main driver is, to make it easy to adapt the architecture and get going very fast.
+So, it is not necessary to learn about reducers, actions and middleware (e.g. action-creators, thunks, effects, etc.) and still have the benefits of reactive style programming.</p>
 </div>
 <div class="paragraph">
-<p>Press the <b class="button">OK</b></p>
+<p>That being said, we provide a <a href="#guide-ngrx-getting-started.asciidoc">tutorial for using NgRx as a state management framework</a>.</p>
 </div>
 </div>
 </div>

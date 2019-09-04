@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
-<title>devonfw guide devon4ng</title>
+<title>Consuming REST services</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -431,19 +431,119 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body id="master.asciidoc" class="book">
+<body class="article toc2 toc-right">
 <div id="header">
-<h1>devonfw guide devon4ng</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel0">
+<li><a href="#guide-consuming-rest-services.asciidoc">Consuming REST services</a>
+<ul class="sectlevel1">
+<li><a href="#guide-consuming-rest-services.asciidoc_defining-adapters">Defining Adapters</a></li>
+<li><a href="#guide-consuming-rest-services.asciidoc_token-management">Token management</a></li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 <div id="content">
-<div id="preamble">
+<!-- toc disabled -->
+<h1 id="guide-consuming-rest-services.asciidoc" class="sect0">Consuming REST services</h1>
+<div class="paragraph">
+<p>A good introduction to working with Angular HttpClient can be found in <a href="https://angular.io/guide/http">Angular Docs</a></p>
+</div>
+<div class="paragraph">
+<p>This guide will cover, how to embed Angular HttpClient in the application architecture.
+For backend request a special service with the suffix <code>Adapter</code> needs to be defined.</p>
+</div>
+<div class="sect1">
+<h2 id="guide-consuming-rest-services.asciidoc_defining-adapters">Defining Adapters</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Unresolved directive in master.asciidoc - include::../devon4ng.wiki/master-devon4ng.asciidoc[leveloffset=0]</p>
+<p>It is a good practice to have a Angular service whose single responsibility is to call the backend and parse the received value to a transfer data model (e.g. Swagger generated TOs).
+Those services need to have the suffix <code>Adapter</code> to make them easy to recognize.</p>
+</div>
+<div class="imageblock">
+<div class="content">
+<a class="image" href="images/rest-adapter.svg"><img src="/home/travis/build/LarsReinken/devonfw-official-website/devonfw-guide/target/generated-docs/images/rest-adapter.svg" alt="Adapters handle backend communication" width="450"></a>
+</div>
+<div class="title">Figure 1. Adapters handle backend communication</div>
 </div>
 <div class="paragraph">
-<p>Press the <b class="button">OK</b></p>
+<p>As illustrated in the figure a Use Case service does not use Angular HttpClient directly but uses an adapter.
+A basic adapter could look like this:</p>
 </div>
+<div class="listingblock">
+<div class="title">Listing 1. Example adapter</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-ts hljs" data-lang="ts">import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs/Observable';
+
+import { FlightTo } from './flight-to';
+
+@Injectable()
+export class FlightsAdapter {
+
+  constructor(
+    private httpClient: HttpClient
+  ) {}
+
+  getFlights(): Observable&lt;FlightTo&gt; {
+    return this.httpClient.get&lt;FlightTo&gt;('/relative/url/to/flights');
+  }
+
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The adapters should use a well-defined transfer data model.
+This could be generated from server endpoints with CobiGen, Swagger, typescript-maven-plugin, etc.
+If inside the application there is a business model defined, the adapter has to parse to the transfer model.
+This is illustrated in the following listing.</p>
+</div>
+<div class="listingblock">
+<div class="title">Listing 2. Example adapter mapping from business model to transfer model</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-ts hljs" data-lang="ts">import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs/Observable';
+import { map } from 'rxjs/operators';
+
+import { FlightTo } from './flight-to';
+import { Flight } from '../../../model/flight';
+
+@Injectable()
+export class FlightsAdapter {
+
+  constructor(
+    private httpClient: HttpClient
+  ) {}
+
+  updateFlight(flight: Flight): Observable&lt;Flight&gt; {
+    const to = this.mapFlight(flight);
+
+    return this.httpClient.post&lt;FlightTo&gt;('/relative/url/to/flights', to).pipe(
+      map(to =&gt; this.mapFlightTo(to))
+    );
+  }
+
+  private mapFlight(flight: Flight): FlightTo {
+    // mapping logic
+  }
+
+  private mapFlightTo(flightTo: FlightTo): Flight {
+    // mapping logic
+  }
+
+}</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="guide-consuming-rest-services.asciidoc_token-management">Token management</h2>
+<div class="sectionbody">
+
 </div>
 </div>
 </div>

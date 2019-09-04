@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.8">
-<title>devonfw guide devon4ng</title>
+<title>Abstract Class Store</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -431,19 +431,142 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body id="master.asciidoc" class="book">
+<body class="article toc2 toc-right">
 <div id="header">
-<h1>devonfw guide devon4ng</h1>
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel0">
+<li><a href="#cookbook-abstract-class-store.asciidoc">Abstract Class Store</a></li>
+</ul>
+</div>
 </div>
 <div id="content">
-<div id="preamble">
-<div class="sectionbody">
+<!-- toc disabled -->
+<h1 id="cookbook-abstract-class-store.asciidoc" class="sect0">Abstract Class Store</h1>
 <div class="paragraph">
-<p>Unresolved directive in master.asciidoc - include::../devon4ng.wiki/master-devon4ng.asciidoc[leveloffset=0]</p>
+<p>The following solution presents a base class for implementing stores which handle state and its transitions.
+Working with the base class achieves:</p>
 </div>
-<div class="paragraph">
-<p>Press the <b class="button">OK</b></p>
+<div class="ulist">
+<ul>
+<li>
+<p>common API across all stores</p>
+</li>
+<li>
+<p>logging (when activated in the constructor)</p>
+</li>
+<li>
+<p>state transitions are asynchronous by design - sequential order problems are avoided</p>
+</li>
+</ul>
 </div>
+<div class="listingblock">
+<div class="title">Listing 1. Usage Example</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-ts hljs" data-lang="ts">@Injectable()
+export class ModalStore extends Store&lt;ModalState&gt; {
+
+  constructor() {
+    super({ isOpen: false }, !environment.production);
+  }
+
+  closeDialog() {
+    this.dispatchAction('Close Dialog', (currentState) =&gt; ({...currentState, isOpen: false}));
+  }
+
+  openDialog() {
+    this.dispatchAction('Open Dialog', (currentState) =&gt; ({...currentState, isOpen: true}));
+  }
+
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Listing 2. Abstract Base Class Store</div>
+<div class="content">
+<pre class="highlightjs highlight"><code class="language-ts hljs" data-lang="ts">import { OnDestroy } from '@angular/core';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { Observable } from 'rxjs/Observable';
+import { intersection, difference } from 'lodash';
+import { map, distinctUntilChanged, observeOn } from 'rxjs/operators';
+import { Subject } from 'rxjs/Subject';
+import { queue } from 'rxjs/scheduler/queue';
+import { Subscription } from 'rxjs/Subscription';
+
+interface Action&lt;T&gt; {
+  name: string;
+  actionFn: (state: T) =&gt; T;
+}
+
+/** Base class for implementing stores. */
+export abstract class Store&lt;T&gt; implements OnDestroy {
+
+  private actionSubscription: Subscription;
+  private actionSource: Subject&lt;Action&lt;T&gt;&gt;;
+  private stateSource: BehaviorSubject&lt;T&gt;;
+  state$: Observable&lt;T&gt;;
+
+  /**
+   * Initializes a store with initial state and logging.
+   * @param initialState Initial state
+   * @param logChanges When true state transitions are logged to the console.
+   */
+  constructor(initialState: T, public logChanges = false) {
+    this.stateSource = new BehaviorSubject&lt;T&gt;(initialState);
+    this.state$ = this.stateSource.asObservable();
+    this.actionSource = new Subject&lt;Action&lt;T&gt;&gt;();
+
+    this.actionSubscription = this.actionSource.pipe(observeOn(queue)).subscribe(action =&gt; {
+      const currentState = this.stateSource.getValue();
+      const nextState = action.actionFn(currentState);
+
+      if (this.logChanges) {
+        this.log(action.name, currentState, nextState);
+      }
+
+      this.stateSource.next(nextState);
+    });
+  }
+
+  /**
+   * Selects a property from the stores state.
+   * Will do distinctUntilChanged() and map() with the given selector.
+   * @param selector Selector function which selects the needed property from the state.
+   * @returns Observable of return type from selector function.
+   */
+  select&lt;TX&gt;(selector: (state: T) =&gt; TX): Observable&lt;TX&gt; {
+    return this.state$.pipe(
+      map(selector),
+      distinctUntilChanged()
+    );
+  }
+
+  protected dispatchAction(name: string, action: (state: T) =&gt; T) {
+    this.actionSource.next({ name, actionFn: action });
+  }
+
+  private log(actionName: string, before: T, after: T) {
+    const result: { [key: string]: { from: any, to: any} } = {};
+    const sameProbs = intersection(Object.keys(after), Object.keys(before));
+    const newProbs = difference(Object.keys(after), Object.keys(before));
+    for (const prop of newProbs) {
+      result[prop] = { from: undefined, to: (&lt;any&gt;after)[prop] };
+    }
+
+    for (const prop of sameProbs) {
+      if ((&lt;any&gt;before)[prop] !== (&lt;any&gt;after)[prop]) {
+        result[prop] = { from: (&lt;any&gt;before)[prop], to: (&lt;any&gt;after)[prop] };
+      }
+    }
+
+    console.log(this.constructor.name, actionName, result);
+  }
+
+  ngOnDestroy() {
+    this.actionSubscription.unsubscribe();
+  }
+
+}</code></pre>
 </div>
 </div>
 </div>
